@@ -7,6 +7,9 @@ Meant as an exercise in learning and making cool graphs.
 import Bio
 from Bio.Seq import Seq
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 #useful function from base python
 from random import choices
 from collections import Counter
@@ -80,5 +83,87 @@ def find_string_indicies(search_string, sequence):
             break
         results.append(i)
     return sorted(results)
+
+def singles_doubles_graph(genome):
+    singles = windowed_base_count(genome, k_window=1)
+    doubles = windowed_base_count(genome, k_window=2)
+    print('Percent GC for ref sequence: %.2f'%((singles['C']+singles['G'])/len(genome)))
+
+    p_CG = calculate_icpg(singles, doubles)
+    p_sym_CG = symmetrized_Icpg(singles, doubles)
+    print('I_CpG = %.3f\nI*CpG = %.3f'%(p_CG,p_sym_CG))
+
+    #plot this
+    fig, ax = plt.subplots(2, figsize=(10,10))
+
+    i = 0
+    for results in [singles, doubles]:
+        x = list(results.keys())
+        heights = list(results.values())
+        ax[i].bar(x,heights)
+        ax[i].set_xlabel('sequence pairs')
+        ax[i].set_ylabel('absolute count')
+        i += 1
+
+    #matplotlib does not like recieving hashes so need to replace with list()
+    ax[0].plot(list(singles.keys()),[7475 for x in range(0,len(singles.keys()))], 'orange')
+
+    #the E(x) for each doublet of bases is E(single_base)/4 since each doublet event is not independent of all other doublet events.
+    ax[1].plot(x,[7475/4 for x in range(0,len(doubles.keys()))], 'orange')
+
+    plt.show()
+
+def find_string_indicies(search_string, sequence):
+    '''
+    This is a simple search loop to find the indicies for each      search_string in sequence
+    '''
+    if len(search_string) >= len(sequence):
+        raise ValueError("search_string must be shorter length                             than sequence")
+    i = len(sequence)
+    results = []
+    while True:
+        i = sequence.rfind(search_string,0,i)
+        if i == -1:
+            break
+        results.append(i)
+    return sorted(results)
+
+def barh_substring_graph(sequence, substring):
+    '''
+    Assumes sequence is a Bio.Seq.seq object
+    Makes a broken barh graph using matplotlib of substring locations within sequence. 
+    This will NOT show all sustring locations as there is not enough horizontal space for sufficient pixels to show.
+    To help with this each width = 10 so that substrings are more visible.
+    '''
+    substr_indicies = find_string_indicies(substring, sequence)
+    barh_xvals = list(
+        zip(substr_indicies, [15 for x in range(0, len(substr_indicies))]))
+    fig, ax = plt.subplots(figsize=(30,3))
+    ax.broken_barh(xranges=barh_xvals, yrange=(1,1))
+    plt.show()
+
+def slidingWindowCG(sequence, window=500):
+    '''
+    Calculates sliding window calculations of frequency of CG% in sequence.
+    Returns matplotlib plot.
+    window = 500 by default.
+    Assumes sequence is Bio.Seq object, don't call .seq attribute!
+    '''
+
+    substr_content_windowed = []
+    for i in range(0, len(sequence), int(window/10)):
+        sub_sequence = sequence[i:i + window]
+        base_counts = windowed_base_count(sub_sequence)
+        #this ends the function once the window starts sliding off the end of the sequence
+        summed_counts = sum(base_counts.values())
+        if summed_counts != window:
+            break
+        C = base_counts['C']/summed_counts
+        G = base_counts['G']/summed_counts
+        substr_content_windowed.append(C+G)
+    fig, ax = plt.subplots(figsize=(30, 7))
+    ax.plot(substr_content_windowed)
+    plt.show()
+
 
 #print('pass')
