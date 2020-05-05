@@ -6,12 +6,14 @@ Meant as an exercise in learning and making cool graphs.
 #Bipython imports since we are using Seq objects in these functions
 import Bio
 from Bio.Seq import Seq
+from Bio import SeqIO
+from Bio.SeqRecord import SeqRecord
 
 import numpy as np
 import matplotlib.pyplot as plt
 
 #useful function from base python
-from random import choices
+from random import choices, sample
 from collections import Counter
 
 def generate_random_sequence(k, weights):
@@ -26,7 +28,18 @@ def generate_random_sequence(k, weights):
     random_sequence = Seq("".join(random_seq_list))
     return random_sequence
 
-def windowed_base_count(sequence, k_window=1):
+
+def random_shuffled_genome(sequence):
+    '''
+    This will build a random genome with the exact same base compositions and lengths of the input sequence
+    Assumes sequence is a Bio.Seq object.
+    Returns as a SeqRecord.
+    Based off Biopython cookbook code for this function.
+    '''
+    raw_shuffled = ''.join(sample(list(sequence), len(sequence)))
+    return SeqRecord(Seq(raw_shuffled, sequence.seq.alphabet), id="Shuffled", description="Based on %s" % sequence.id)
+
+def windowed_base_count(sequence, k_window=1, as_ratio=False):
     '''
     This will return the same result as DAMBE for pairs of residues.
     sequence is a Bio.Seq object that you want to know the count of k_sized sub_strings for
@@ -37,9 +50,17 @@ def windowed_base_count(sequence, k_window=1):
     sequence_sub_strings = []
 
     for i in range(0,len(sequence)-(k_window-1)):
-        sequence_sub_strings.append(str(sequence.seq[i:i+k_window]))
+        sequence_sub_strings.append(str(sequence.seq[i:i + k_window]))
 
-    return Counter(sequence_sub_strings)
+    if as_ratio == False:
+        frequencies = Counter(sequence_sub_strings)
+    elif as_ratio == True:
+        frequencies = Counter(sequence_sub_strings)
+        total = sum(frequencies.values())
+        for key in frequencies:
+            frequencies[key] = frequencies[key]/total
+
+    return frequencies
 
 def calculate_icpg(singles, doubles, diagnostic_print = False):
     '''
