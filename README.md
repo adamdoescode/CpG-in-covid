@@ -3,6 +3,7 @@
 ### Inspired by:
 
 [Extreme Genomic CpG Deficiency in SARS-CoV-2 and Evasionof Host Antiviral Defense](https://academic.oup.com/mbe/advance-article/doi/10.1093/molbev/msaa094/5819559)
+
 [Compositional Biases of Bacterial Genomes and Evolutionary Implications](https://jb.asm.org/content/jb/179/12/3899.full.pdf)
 
 ### Introduction
