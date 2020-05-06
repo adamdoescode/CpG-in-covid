@@ -1,5 +1,7 @@
 # Frequencies of CpG in various organisms
 
+View analysis at: https://adamdoescode.github.io/CpG-in-covid/
+
 ### Inspired by:
 
 [Extreme Genomic CpG Deficiency in SARS-CoV-2 and Evasionof Host Antiviral Defense](https://academic.oup.com/mbe/advance-article/doi/10.1093/molbev/msaa094/5819559)
